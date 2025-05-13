@@ -1,0 +1,23 @@
+﻿@model PRG.EVA01.SeaBattle.Models.Game
+
+@{
+    ViewData["Title"] = "ThrowBomb";
+}
+
+<h1>SeaBattle</h1>
+<ul>
+    @foreach (string GameInfo in ViewBag.SeaBattleInfo)
+    {
+       <li>@GameInfo</li> 
+    }
+    
+</ul>
+
+<h4>Bom info:</h4>
+<ul>
+    @foreach (string BombInfo in ViewBag.BombInfo)
+    {
+        <li>@BombInfo</li>
+    }
+</ul>
+
