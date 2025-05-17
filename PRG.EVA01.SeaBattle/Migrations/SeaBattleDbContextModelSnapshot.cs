@@ -22,6 +22,52 @@ namespace PRG.EVA01.SeaBattle.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.Boat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Boats");
+                });
+
+            modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.Game", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PlayerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartedPlayingOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Games");
+                });
+
             modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.GameLog", b =>
                 {
                     b.Property<int>("Id")
@@ -55,6 +101,51 @@ namespace PRG.EVA01.SeaBattle.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GameLogs");
+                });
+
+            modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Letter")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.Boat", b =>
+                {
+                    b.HasOne("PRG.EVA01.SeaBattle.Models.Game", "Game")
+                        .WithMany("Boats")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PRG.EVA01.SeaBattle.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.Game", b =>
+                {
+                    b.Navigation("Boats");
                 });
 #pragma warning restore 612, 618
         }

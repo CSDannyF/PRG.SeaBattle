@@ -5,6 +5,6 @@
         public int Id { get; set; }
         public string PlayerName { get; set; }
         public DateTime StartedPlayingOn { get; set; }
-        public List<Boat> Boats { get; set; }
+        public virtual List<Boat> Boats { get; set; }
     }
 }

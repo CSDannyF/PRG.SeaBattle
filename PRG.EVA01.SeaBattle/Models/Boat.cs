@@ -7,7 +7,11 @@
     }
     public class Boat
     {
-        public Location Location { get; set; }
+        public int Id { get; set; }
+        public virtual Location Location { get; set; }
+        public int LocationId { get; set; }
         public BoatStatus Status { get; set; }
+        public virtual Game Game { get; set; }
+        public int GameId { get; set; }
     }
 }
