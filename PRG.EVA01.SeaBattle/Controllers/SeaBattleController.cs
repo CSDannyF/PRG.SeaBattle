@@ -12,18 +12,11 @@ namespace PRG.EVA01.SeaBattle.Controllers
 
         private string letters = "ABCDEFG";
         private string numbers = "123456";
-        private static bool _boatsLoaded = false;
-        public static List<Boat> _boats = new List<Boat>();
+        private List<Boat> _boats = new List<Boat>();
 
         public SeaBattleController(SeaBattleDbContext context)
         {
             _context = context;
-            if (!_boatsLoaded)
-            {
-                _boats.Clear();
-                LoadBoats(6).Wait();
-                _boatsLoaded = true;
-            }
         }
 
         //GET: Games
@@ -44,15 +37,15 @@ namespace PRG.EVA01.SeaBattle.Controllers
         public async Task<IActionResult> Create([Bind("Id,PlayerName,StartedPlayingOn")] Game game)
         {
             game.StartedPlayingOn = DateTime.Now;
+            await LoadBoats(6);
             game.Boats = _boats;
-            //Boat boat = new Boat { Location = new Location { Letter = "A", Number = "2" }, Status = BoatStatus.Sunk };
-            //game.Boats.Add(boat);
+
+            // Ik krijg altijd ModelState invalid op de boats
             ModelState.Remove("Boats");
             if (ModelState.IsValid)
             {
                 _context.Add(game);
                 await _context.SaveChangesAsync();
-                _boatsLoaded = false;
                 ViewBag.SeaBattleInfo = new List<string>
                 {
                     "Game id: " + game.Id,
@@ -196,8 +189,10 @@ namespace PRG.EVA01.SeaBattle.Controllers
         /// </summary>
         /// <param name="numberOfBoats">Hoeveelheid boten</param>
         /// <returns></returns>
-        public static async Task LoadBoats(int numberOfBoats) 
+        public async Task LoadBoats(int numberOfBoats) 
         {
+            List<Boat> boats = new List<Boat>();
+
             HttpClient httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(@"https://mgp32-api.azurewebsites.net/");
 
@@ -231,13 +226,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
             https://stackoverflow.com/questions/879391/linq-any-vs-exists-whats-the-difference
             Check indien een er al een boot op de gegeven locatie staat (Any checked voorwaarde, Exist checked al
         */
-        // TODO async maken?
         /// <summary>
         /// Voegt een boot toe indien de meegegeven locatie nog niet bezet is
         /// </summary>
         /// <param name="location">locatie van de boot</param>
         /// <returns>true als boot is toegevoegd</returns>
-        private static bool AddBoat(Location location)
+        private bool AddBoat(Location location)
         {
             bool occupied = _boats.Any(b => b.Location.Letter == location.Letter && b.Location.Number == location.Number);
             if (!occupied)
@@ -249,20 +243,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
         }
 
         /// <summary>
-        /// Geeft terug hoeveel boten gezonken zijn
+        /// Geeft terug hoeveel boten gezonken zijn via Linq
         /// </summary>
         /// <returns>Aantal gezonken boten</returns>
         private int GetNumberOfSunkenBoats(Game game)
         {
-            int NumberOfSunkenBoats = 0;
-            foreach(Boat boat in game.Boats)
-            {
-                if (boat.Status == BoatStatus.Sunk)
-                {
-                    NumberOfSunkenBoats++;
-                }
-            }
-            return NumberOfSunkenBoats;
+            return game.Boats.Count(b => b.Status == BoatStatus.Sunk);
         }
     }
 }
