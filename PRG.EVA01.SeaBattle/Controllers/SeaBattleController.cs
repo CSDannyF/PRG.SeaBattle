@@ -12,6 +12,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
 
         private string letters = "ABCDEFG";
         private string numbers = "123456";
+        private int numberOfBoats = 6;
         private List<Boat> _boats = new List<Boat>();
 
         public SeaBattleController(SeaBattleDbContext context)
@@ -37,7 +38,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
         public async Task<IActionResult> Create([Bind("Id,PlayerName,StartedPlayingOn")] Game game)
         {
             game.StartedPlayingOn = DateTime.Now;
-            await LoadBoats(6);
+            await LoadBoats(numberOfBoats);
             game.Boats = _boats;
 
             // Ik krijg altijd ModelState invalid op de boats
@@ -89,10 +90,10 @@ namespace PRG.EVA01.SeaBattle.Controllers
         }
 
         /// <summary>
-        /// Gooit een bom via de url en zal de nodige spelinformatie doorgeven aan de view
+        /// Gooit een bom ingave in velden en zal de nodige spelinformatie doorgeven aan de view
         /// </summary>
         /// <param name="id">Game id</param>
-        /// <param name="letter">Bereik van A t.e.m. G</param>
+        /// <param name="letter">Bereik van A t.e.m. F</param>
         /// <param name="number">Bereik van 1 t.e.m. 6param>
         /// <returns>ThrowBomb view</returns>
         public async Task<IActionResult> ThrowBomb(int Id, string letter, string number)
@@ -103,7 +104,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return NotFound();
             }
 
-            // eager loading, voor geneste objecten
+            // Eager loading, voor geneste objecten
             // Als ik enkel de Game ophaal is Boats null en zo ook Location. Dus verplicht ik het Boats en daarna ook Locatie mee op te halen
             // https://learn.microsoft.com/en-us/ef/core/querying/related-data/eager
             var game = await _context.Games
