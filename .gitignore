@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/PRG.EVA01.SeaBattle/Controllers/GamesController.cs

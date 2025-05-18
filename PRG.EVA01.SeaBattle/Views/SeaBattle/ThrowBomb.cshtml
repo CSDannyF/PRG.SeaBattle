@@ -8,16 +8,43 @@
 <ul>
     @foreach (string GameInfo in ViewBag.SeaBattleInfo)
     {
-       <li>@GameInfo</li> 
+        <li>@GameInfo</li> 
     }
-    
 </ul>
 
-<h4>Bom info:</h4>
 <ul>
-    @foreach (string BombInfo in ViewBag.BombInfo)
+    @if (ViewBag.BombInfo != null)
     {
-        <li>@BombInfo</li>
+        <h4>Bom info:</h4>
+        @foreach (string BombInfo in ViewBag.BombInfo)
+        {
+            <li>@BombInfo</li>
+        }
     }
+    @if (ViewBag.SunkenShips != null)
+    {
+        <li>@ViewBag.SunkenShips</li>
+    }    
 </ul>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ThrowBomb">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label for="letter" class="control-label">Letter</label>
+                <input id="letter" name="letter" type="text" class="form-control" required/>
+            </div>
+            <div class="form-group">
+                <label for="number" class="control-label">Number</label>
+                <input id="number" name="number" type="number" class="form-control" required/>
+            </div>
+            <div class="from-group">
+                <input type="submit" value="Play" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<a asp-action="Index">Stop spel</a>
 

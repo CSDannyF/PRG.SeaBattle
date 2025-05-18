@@ -13,81 +13,139 @@ namespace PRG.EVA01.SeaBattle.Controllers
         private string letters = "ABCDEFG";
         private string numbers = "123456";
         private static bool _boatsLoaded = false;
-        private static Game _game = new Game
-        {
-            Id = 1,
-            PlayerName = "Player1",
-            StartedPlayingOn = DateTime.Now,
-            Boats = new List<Boat>
-            {
-                new Boat { Location = new Location { Letter = "A", Number = "2" }, Status = BoatStatus.Active },
-                new Boat { Location = new Location { Letter = "B", Number = "4" }, Status = BoatStatus.Active },
-                new Boat { Location = new Location { Letter = "C", Number = "6" }, Status = BoatStatus.Active }
-            }
-        };
+        public static List<Boat> _boats = new List<Boat>();
 
-        // Hoort dit zo? controller wordt elke keer aangeroepen. In een static constructor creëer ik een deadlock ofzoiets
         public SeaBattleController(SeaBattleDbContext context)
         {
             _context = context;
             if (!_boatsLoaded)
             {
-                LoadBoats().Wait();
+                _boats.Clear();
+                LoadBoats(6).Wait();
                 _boatsLoaded = true;
             }
         }
 
-        public IActionResult Index()
+        //GET: Games
+        public async Task<IActionResult> Index()
         {
+            return View(await _context.Games.ToListAsync());
+        }
+
+        // GET: Games/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: SeaBattle/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,PlayerName,StartedPlayingOn")] Game game)
+        {
+            game.StartedPlayingOn = DateTime.Now;
+            game.Boats = _boats;
+            //Boat boat = new Boat { Location = new Location { Letter = "A", Number = "2" }, Status = BoatStatus.Sunk };
+            //game.Boats.Add(boat);
+            ModelState.Remove("Boats");
+            if (ModelState.IsValid)
+            {
+                _context.Add(game);
+                await _context.SaveChangesAsync();
+                _boatsLoaded = false;
+                ViewBag.SeaBattleInfo = new List<string>
+                {
+                    "Game id: " + game.Id,
+                    "Speler: " + game.PlayerName,
+                    "Gestart met spelen: " + game.StartedPlayingOn,
+                    "Aantal gezonken botenbah: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count
+                };
+                return RedirectToAction("ThrowBomb", new { id = game.Id });
+            }
+            return View(game);
+        }
+
+        //GET: SeaBattle/ThrowBomb
+        [HttpGet("SeaBattle/ThrowBomb/{id}")]
+        public async Task<IActionResult> ThrowBomb(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Include Boats voor genest object van Game anders is Boats null
+            var game = await _context.Games
+                .Include(g => g.Boats)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.SeaBattleInfo = new List<string>
+            {
+                "Game id: " + game.Id,
+                "Speler: " + game.PlayerName,
+                "Gestart met spelen: " + game.StartedPlayingOn,
+            };
+            ViewBag.SunkenShips = "Aantal gezonken botenbuh: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
+
             return View();
         }
 
         /// <summary>
         /// Gooit een bom via de url en zal de nodige spelinformatie doorgeven aan de view
         /// </summary>
+        /// <param name="id">Game id</param>
         /// <param name="letter">Bereik van A t.e.m. G</param>
         /// <param name="number">Bereik van 1 t.e.m. 6param>
         /// <returns>ThrowBomb view</returns>
-        public async Task<IActionResult> ThrowBomb(string letter, string number)
+        public async Task<IActionResult> ThrowBomb(int Id, string letter, string number)
         {
+            //ophalen van Game
+            if (Id == null)
+            {
+                return NotFound();
+            }
+
+            // eager loading, voor geneste objecten
+            // Als ik enkel de Game ophaal is Boats null en zo ook Location. Dus verplicht ik het Boats en daarna ook Locatie mee op te halen
+            // https://learn.microsoft.com/en-us/ef/core/querying/related-data/eager
+            var game = await _context.Games
+                .Include(g => g.Boats)
+                .ThenInclude(b => b.Location)
+                .FirstOrDefaultAsync(m => m.Id == Id);
+
+            if (game == null)
+            {
+                return NotFound();
+            }
 
             // GameLog object om later te op te slaan in database indien er een geldige poging is
             GameLog gameLog = new GameLog()
             {
-                GameId = _game.Id,
-                PlayerName = _game.PlayerName,
+                GameId = game.Id,
+                PlayerName = game.PlayerName,
                 LocationLetter = letter,
                 LocationNumber = number,
-                
                 CreatedOn = DateTime.Now
             };
-            
+
             // Algemene info over het spel
             ViewBag.SeaBattleInfo = new List<string>
             {
-                "Game id: " + _game.Id,
-                "Speler: " + _game.PlayerName,
-                "Gestart met spelen: " + _game.StartedPlayingOn
+                "Game id: " + game.Id,
+                "Speler: " + game.PlayerName,
+                "Gestart met spelen: " + game.StartedPlayingOn,
             };
-
-            //Geeft ongeldige poging terug bij verkeerde url
-            if (letter == null || number == null)
-            {
-                var routeData = RouteData.Values;
-                ViewBag.BombInfo = new List<string>
-                {
-                    "Locatie: "  + " / ",
-                    "Resultaat: Ongeldige poging",
-                    "Aantal gezonken boten: " + GetNumberOfSunkenBoats()
-                };
-                return View();
-            }
 
             // Check als inkomende parameters binnen het bereik zijn
             if (letters.Contains(letter.ToUpper()) && numbers.Contains(number))
             {
                 // Loop door de lijst van boten, indien een boot geraakt word, wordt de ThrowBomb view aangeroepen
-                foreach (Boat boat in _game.Boats)
+                foreach (Boat boat in game.Boats)
                 {
                     // Indien een boot nog niet gezonken is kan hij geraakt worden
                     if (boat.Status == BoatStatus.Active)
@@ -98,10 +156,10 @@ namespace PRG.EVA01.SeaBattle.Controllers
                             boat.Status = BoatStatus.Sunk;
                             ViewBag.BombInfo = new List<string>
                             {
-                                "Locatie: " + RouteData.Values["letter"] + " / " + RouteData.Values["number"],
+                                "Locatie: " + letter + " / " + number,
                                 "Resultaat: HIT!!!",
-                                "Aantal gezonken boten: " + GetNumberOfSunkenBoats()
                             };
+                            ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
                             gameLog.Result = "HIT!!!";
                             _context.Add(gameLog);
                             await _context.SaveChangesAsync();
@@ -112,11 +170,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 // Indien geen hit
                 ViewBag.BombInfo = new List<string>
                 {
-                    "Locatie: " + RouteData.Values["letter"] + " / " + RouteData.Values["number"],
+                    "Locatie: " + letter + " / " + number,
                     "Resultaat: MIS!!",
-                    "Aantal gezonken boten: " + GetNumberOfSunkenBoats()
                 };
+                ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
                 gameLog.Result = "MIS!!";
+
                 _context.Add(gameLog);
                 await _context.SaveChangesAsync();
                 return View();
@@ -125,25 +184,26 @@ namespace PRG.EVA01.SeaBattle.Controllers
             // Indien ongeldige poging maar beide parameters zijn wel meegegeven
             ViewBag.BombInfo = new List<string>
             {
-                "Locatie: " + RouteData.Values["letter"] + " / " + RouteData.Values["number"],
+                "Locatie: " + letter + " / " + number,
                 "Resultaat: Ongeldige poging",
-                "Aantal gezonken boten: " + GetNumberOfSunkenBoats()
             };
+            ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
             return View();
         }
 
         /// <summary>
-        /// Voegt 3 random boten toe aan het spel
+        /// Voegt x aantal random boten toe aan het spel
         /// </summary>
+        /// <param name="numberOfBoats">Hoeveelheid boten</param>
         /// <returns></returns>
-        public static async Task LoadBoats() 
+        public static async Task LoadBoats(int numberOfBoats) 
         {
             HttpClient httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(@"https://mgp32-api.azurewebsites.net/");
 
             try
             {
-                int i = 3;
+                int i = numberOfBoats;
                 do
                 {
                     Task<HttpResponseMessage> responseTask1 = httpClient.GetAsync("randomlocation/get/6");
@@ -179,11 +239,10 @@ namespace PRG.EVA01.SeaBattle.Controllers
         /// <returns>true als boot is toegevoegd</returns>
         private static bool AddBoat(Location location)
         {
-
-            bool occupied = _game.Boats.Any(b => b.Location.Letter == location.Letter && b.Location.Number == location.Number);
+            bool occupied = _boats.Any(b => b.Location.Letter == location.Letter && b.Location.Number == location.Number);
             if (!occupied)
             {
-                _game.Boats.Add(new Boat { Location = location, Status = BoatStatus.Active });
+                _boats.Add(new Boat { Location = location, Status = BoatStatus.Active });
                 return true;
             }
             return false;
@@ -193,10 +252,10 @@ namespace PRG.EVA01.SeaBattle.Controllers
         /// Geeft terug hoeveel boten gezonken zijn
         /// </summary>
         /// <returns>Aantal gezonken boten</returns>
-        private int GetNumberOfSunkenBoats()
+        private int GetNumberOfSunkenBoats(Game game)
         {
             int NumberOfSunkenBoats = 0;
-            foreach(Boat boat in _game.Boats)
+            foreach(Boat boat in game.Boats)
             {
                 if (boat.Status == BoatStatus.Sunk)
                 {
@@ -205,6 +264,5 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
             return NumberOfSunkenBoats;
         }
-
     }
 }

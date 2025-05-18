@@ -42,6 +42,14 @@ namespace PRG.EVA01.SeaBattle.Controllers
             return View(gameLog);
         }
 
+        // GET: GameLogs/GameId
+        public async Task<IActionResult> GameDetails(int? id)
+        {
+            var seaBattleDbContext = _context.GameLogs
+                .Where(w => w.GameId == id);
+            return View("Index", await seaBattleDbContext.ToListAsync());
+        }
+
         // GET: GameLogs/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -56,7 +64,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return NotFound();
             }
-
             return View(gameLog);
         }
 

@@ -31,7 +31,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
-    name: "throwBomb",
-    pattern: "{controller=SeaBattle}/{action=ThrowBomb}/{letter}/{number}");
+  name: "throwBomb",
+  pattern: "{controller=SeaBattle}/{action=ThrowBomb}/{id}/{letter}/{number}");
 
 app.Run();
