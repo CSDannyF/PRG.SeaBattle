@@ -7,17 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Views\Games\**" />
-    <Content Remove="Views\Games\**" />
-    <EmbeddedResource Remove="Views\Games\**" />
-    <None Remove="Views\Games\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\GamesController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>

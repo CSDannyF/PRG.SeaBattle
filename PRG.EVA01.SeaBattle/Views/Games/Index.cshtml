@@ -7,7 +7,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">New Game</a>
+    <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -31,10 +31,9 @@
                 @Html.DisplayFor(modelItem => item.StartedPlayingOn)
             </td>
             <td>
-                <a asp-controller="GameLogs" asp-action="GameDetails" asp-route-id="@item.Id">GameDetails</a> |
-            </td>
-            <td>
-                <a asp-action="ThrowBomb" asp-route-id="@item.Id">Continue game</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-controller="Boats" asp-action="Index" asp-route-id="@item.Id">Logs</a>
             </td>
         </tr>
 }

@@ -20,45 +20,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             _context = context;
         }
 
-        //GET: Games
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Games.ToListAsync());
-        }
-
-        // GET: Games/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: SeaBattle/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PlayerName,StartedPlayingOn")] Game game)
-        {
-            game.StartedPlayingOn = DateTime.Now;
-            await LoadBoats(numberOfBoats);
-            game.Boats = _boats;
-
-            // Ik krijg altijd ModelState invalid op de boats
-            ModelState.Remove("Boats");
-            if (ModelState.IsValid)
-            {
-                _context.Add(game);
-                await _context.SaveChangesAsync();
-                ViewBag.SeaBattleInfo = new List<string>
-                {
-                    "Game id: " + game.Id,
-                    "Speler: " + game.PlayerName,
-                    "Gestart met spelen: " + game.StartedPlayingOn,
-                    "Aantal gezonken botenbah: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count
-                };
-                return RedirectToAction("ThrowBomb", new { id = game.Id });
-            }
-            return View(game);
-        }
-
         //GET: SeaBattle/ThrowBomb
         [HttpGet("SeaBattle/ThrowBomb/{id}")]
         public async Task<IActionResult> ThrowBomb(int? id)
@@ -84,7 +45,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 "Speler: " + game.PlayerName,
                 "Gestart met spelen: " + game.StartedPlayingOn,
             };
-            ViewBag.SunkenShips = "Aantal gezonken botenbuh: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
+            ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
 
             return View();
         }
@@ -96,7 +57,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
         /// <param name="letter">Bereik van A t.e.m. F</param>
         /// <param name="number">Bereik van 1 t.e.m. 6param>
         /// <returns>ThrowBomb view</returns>
-        public async Task<IActionResult> ThrowBomb(int Id, string letter, string number)
+        public async Task<IActionResult> ThrowBomb(string letter, string number, int Id)
         {
             //ophalen van Game
             if (Id == null)
@@ -183,64 +144,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             };
             ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
             return View();
-        }
-
-        /// <summary>
-        /// Voegt x aantal random boten toe aan het spel
-        /// </summary>
-        /// <param name="numberOfBoats">Hoeveelheid boten</param>
-        /// <returns></returns>
-        public async Task LoadBoats(int numberOfBoats) 
-        {
-            List<Boat> boats = new List<Boat>();
-
-            HttpClient httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(@"https://mgp32-api.azurewebsites.net/");
-
-            try
-            {
-                int i = numberOfBoats;
-                do
-                {
-                    Task<HttpResponseMessage> responseTask1 = httpClient.GetAsync("randomlocation/get/6");
-                    HttpResponseMessage response1 = await responseTask1;
-
-                    if (response1.IsSuccessStatusCode)
-                    {
-                        Location location = await response1.Content.ReadFromJsonAsync<Location>();
-                        if (AddBoat(location))
-                        {
-                            i--;
-                        }
-                    }
-                } while (i > 0);
-            }
-            // catch anders implementeren?
-            catch (Exception e)
-            {
-                Console.WriteLine("Error " + e.Message);
-            }
-        }
-
-        /*
-            https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.any?view=net-9.0
-            https://stackoverflow.com/questions/879391/linq-any-vs-exists-whats-the-difference
-            Check indien een er al een boot op de gegeven locatie staat (Any checked voorwaarde, Exist checked al
-        */
-        /// <summary>
-        /// Voegt een boot toe indien de meegegeven locatie nog niet bezet is
-        /// </summary>
-        /// <param name="location">locatie van de boot</param>
-        /// <returns>true als boot is toegevoegd</returns>
-        private bool AddBoat(Location location)
-        {
-            bool occupied = _boats.Any(b => b.Location.Letter == location.Letter && b.Location.Number == location.Number);
-            if (!occupied)
-            {
-                _boats.Add(new Boat { Location = location, Status = BoatStatus.Active });
-                return true;
-            }
-            return false;
         }
 
         /// <summary>
