@@ -20,6 +20,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
             _context = context;
         }
 
+        /*
         //GET: SeaBattle/ThrowBomb
         [HttpGet("SeaBattle/ThrowBomb/{id}")]
         public async Task<IActionResult> ThrowBomb(int? id)
@@ -49,6 +50,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
 
             return View();
         }
+        */
 
         /// <summary>
         /// Gooit een bom ingave in velden en zal de nodige spelinformatie doorgeven aan de view
