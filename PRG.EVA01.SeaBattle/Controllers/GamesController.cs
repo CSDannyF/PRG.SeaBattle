@@ -178,27 +178,89 @@ namespace PRG.EVA01.SeaBattle.Controllers
         public async Task LoadBoats(int numberOfBoats)
         {
             List<Boat> boats = new List<Boat>();
+            bool[] AreBoatsAdded = new bool[numberOfBoats];
 
             HttpClient httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(@"https://mgp32-api.azurewebsites.net/");
 
             try
             {
+           
                 int i = numberOfBoats;
                 do
                 {
-                    Task<HttpResponseMessage> responseTask1 = httpClient.GetAsync("randomlocation/get/6");
-                    HttpResponseMessage response1 = await responseTask1;
-
-                    if (response1.IsSuccessStatusCode)
+                    if (!AreBoatsAdded[0])
                     {
-                        Location location = await response1.Content.ReadFromJsonAsync<Location>();
-                        if (AddBoat(location))
+                        Task<HttpResponseMessage> responseTask1 = httpClient.GetAsync("randomlocation/get/6");
+                        HttpResponseMessage response1 = await responseTask1;
+                        if (response1.IsSuccessStatusCode)
                         {
-                            i--;
+                            Location location = await response1.Content.ReadFromJsonAsync<Location>();
+                            AreBoatsAdded[0] = AddBoat(location);
+                            Console.WriteLine("boot 1 toegevoegd");
                         }
                     }
-                } while (i > 0);
+                    
+                    if (!AreBoatsAdded[1])
+                    {
+                        Task<HttpResponseMessage> responseTask2 = httpClient.GetAsync("randomlocation/get/6");
+                        HttpResponseMessage response2 = await responseTask2;
+                        if (response2.IsSuccessStatusCode)
+                        {
+                            Location location = await response2.Content.ReadFromJsonAsync<Location>();
+                            AreBoatsAdded[1] = AddBoat(location);
+                            Console.WriteLine("boot 2 toegevoegd");
+                        }
+                    }
+
+                    if (!AreBoatsAdded[2])
+                    {
+                        Task<HttpResponseMessage> responseTask3 = httpClient.GetAsync("randomlocation/get/6");
+                        HttpResponseMessage response3 = await responseTask3;
+                        if (response3.IsSuccessStatusCode)
+                        {
+                            Location location = await response3.Content.ReadFromJsonAsync<Location>();
+                            AreBoatsAdded[2] = AddBoat(location);
+                            Console.WriteLine("boot 3 toegevoegd");
+                        }
+                    }
+
+                    if (!AreBoatsAdded[3])
+                    {
+                        Task<HttpResponseMessage> responseTask4 = httpClient.GetAsync("randomlocation/get/6");
+                        HttpResponseMessage response4 = await responseTask4;
+                        if (response4.IsSuccessStatusCode)
+                        {
+                            Location location = await response4.Content.ReadFromJsonAsync<Location>();
+                            AreBoatsAdded[3] = AddBoat(location);
+                            Console.WriteLine("boot 4 toegevoegd");
+                        }
+                    }
+
+                    if (!AreBoatsAdded[4])
+                    {
+                        Task<HttpResponseMessage> responseTask5 = httpClient.GetAsync("randomlocation/get/6");
+                        HttpResponseMessage response5 = await responseTask5;
+                        if (response5.IsSuccessStatusCode)
+                        {
+                            Location location = await response5.Content.ReadFromJsonAsync<Location>();
+                            AreBoatsAdded[4] = AddBoat(location);
+                            Console.WriteLine("boot 5 toegevoegd");
+                        }
+                    }
+
+                    if (!AreBoatsAdded[5])
+                    {
+                        Task<HttpResponseMessage> responseTask6 = httpClient.GetAsync("randomlocation/get/6");
+                        HttpResponseMessage response6 = await responseTask6;
+                        if (response6.IsSuccessStatusCode)
+                        {
+                            Location location = await response6.Content.ReadFromJsonAsync<Location>();
+                            AreBoatsAdded[5] = AddBoat(location);
+                            Console.WriteLine("boot 6 toegevoegd");
+                        }
+                    }
+                } while (AreBoatsAdded.Contains(false));
             }
             // catch anders implementeren?
             catch (Exception e)
