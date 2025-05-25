@@ -78,8 +78,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
                     "Gestart met spelen: " + game.StartedPlayingOn,
                     "Aantal gezonken botenbah: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count
                 };
-                return RedirectToAction(nameof(Index));
-                //return RedirectToAction("ThrowBomb", new { id = game.Id });
+                return RedirectToAction("ThrowBomb", "SeaBattle", new { id = game.Id });
             }
             return View(game);
         }

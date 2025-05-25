@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRG.EVA01.SeaBattle.Models;
+using PRG.EVA01.SeaBattle.ViewModels.GameLogs;
 
 namespace PRG.EVA01.SeaBattle.Controllers
 {
@@ -21,6 +22,20 @@ namespace PRG.EVA01.SeaBattle.Controllers
         // GET: GameLogs
         public async Task<IActionResult> Index()
         {
+            //var gameLogs = from ga in _context.Games
+            //               join gl in _context.GameLogs on ga.Id equals gl.GameId
+            //               join b in _context.Boats on ga.Id equals b.GameId
+            //               join l in _context.Locations on b.LocationId equals l.Id
+            //               //where b.Location.Letter == gl.LocationLetter && b.Location.Number == gl.LocationNumber
+            //               select new IndexViewModel
+            //               {
+            //                   GameId = ga.Id,
+            //                   LocationId = l.Id,
+            //                   LocationLetter = l.Letter,
+            //                   LocationNumber = l.Number,
+            //                   Status = b.Status
+            //               };
+            //return View(await gameLogs.ToListAsync());
             return View(await _context.GameLogs.ToListAsync());
         }
 
