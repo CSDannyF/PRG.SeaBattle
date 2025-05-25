@@ -62,8 +62,11 @@ namespace PRG.EVA01.SeaBattle.Controllers
             await LoadBoats(numberOfBoats);
             game.Boats = _boats;
 
-            // Ik krijg altijd ModelState invalid op de boats
+            // Ik krijg altijd ModelState invalid op de boats omdat deze ModelState wordt gecontrolleerd bij de Post
+            // Nu worden de objecten later bijgevoegd maar wordt de ModelState niet veranderd
             ModelState.Remove("Boats");
+            ModelState.Remove("GameLogs");
+
             if (ModelState.IsValid)
             {
                 _context.Add(game);

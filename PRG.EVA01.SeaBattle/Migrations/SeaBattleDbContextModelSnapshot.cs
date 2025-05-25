@@ -100,6 +100,8 @@ namespace PRG.EVA01.SeaBattle.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GameId");
+
                     b.ToTable("GameLogs");
                 });
 
@@ -143,9 +145,22 @@ namespace PRG.EVA01.SeaBattle.Migrations
                     b.Navigation("Location");
                 });
 
+            modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.GameLog", b =>
+                {
+                    b.HasOne("PRG.EVA01.SeaBattle.Models.Game", "Game")
+                        .WithMany("GameLogs")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("PRG.EVA01.SeaBattle.Models.Game", b =>
                 {
                     b.Navigation("Boats");
+
+                    b.Navigation("GameLogs");
                 });
 #pragma warning restore 612, 618
         }

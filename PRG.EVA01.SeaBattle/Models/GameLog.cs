@@ -9,5 +9,6 @@
         public string LocationNumber { get; set; }
         public string Result { get; set; }
         public DateTime CreatedOn { get; set; }
+        public virtual Game Game { get; set; }
     }
 }
