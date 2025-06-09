@@ -13,8 +13,8 @@ namespace PRG.EVA01.SeaBattle.ViewModels.SeaBattle
         [Required]
         [Display(Name = "Number")]
         public string LocationNumber { get; set; }
-        [Display(Name = "Throw Result")]
         public DateTime CreatedOn { get; set; } = DateTime.Now;
+        [Display(Name = "Throw Result")]
         public string Result { get; set; }
         public string TotalSunkenBoats { get; set; }
     }

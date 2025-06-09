@@ -20,23 +20,38 @@ namespace PRG.EVA01.SeaBattle.Controllers
         }
 
         // GET: GameLogs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            //var gameLogs = from ga in _context.Games
-            //               join gl in _context.GameLogs on ga.Id equals gl.GameId
-            //               join b in _context.Boats on ga.Id equals b.GameId
-            //               join l in _context.Locations on b.LocationId equals l.Id
-            //               //where b.Location.Letter == gl.LocationLetter && b.Location.Number == gl.LocationNumber
-            //               select new IndexViewModel
-            //               {
-            //                   GameId = ga.Id,
-            //                   LocationId = l.Id,
-            //                   LocationLetter = l.Letter,
-            //                   LocationNumber = l.Number,
-            //                   Status = b.Status
-            //               };
-            //return View(await gameLogs.ToListAsync());
-            return View(await _context.GameLogs.ToListAsync());
+            if (id != null)
+            {
+                var gameLogs = await (from gl in _context.GameLogs
+                    where gl.GameId == id
+                    select new IndexViewModel
+                    {
+                        LogId = gl.Id,
+                        GameId = gl.GameId,
+                        LocationLetter = gl.LocationLetter,
+                        LocationNumber = gl.LocationNumber,
+                        Result = gl.Result,
+                        CreatedOn = gl.CreatedOn
+                    }).ToListAsync();
+                return View(gameLogs);
+            } 
+            else
+            {
+                var gameLogs = await (from gl in _context.GameLogs
+                    select new IndexViewModel
+                    {
+                        LogId = gl.Id,
+                        GameId = gl.GameId,
+                        LocationLetter = gl.LocationLetter,
+                        LocationNumber = gl.LocationNumber,
+                        Result = gl.Result,
+                        CreatedOn = gl.CreatedOn
+                    }).ToListAsync();
+                return View(gameLogs);
+            }
+            
         }
 
         // GET: GameLogs/Details/5
@@ -49,12 +64,23 @@ namespace PRG.EVA01.SeaBattle.Controllers
 
             var gameLog = await _context.GameLogs
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (gameLog == null)
             {
                 return NotFound();
             }
 
-            return View(gameLog);
+            var vm = new DetailsViewModel
+            {
+                GameId = gameLog.GameId,
+                PlayerName = gameLog.PlayerName,
+                LocationLetter = gameLog.LocationLetter,
+                LocationNumber = gameLog.LocationNumber,
+                Result = gameLog.Result,
+                CreatedOn = gameLog.CreatedOn
+            };
+
+            return View(vm);
         }
 
         // GET: GameLogs/GameId

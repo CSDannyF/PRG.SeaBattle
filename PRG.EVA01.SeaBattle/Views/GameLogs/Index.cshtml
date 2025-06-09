@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PRG.EVA01.SeaBattle.Models.GameLog>
+﻿@model IEnumerable<PRG.EVA01.SeaBattle.ViewModels.GameLogs.IndexViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,13 +13,7 @@
                 @Html.DisplayNameFor(model => model.GameId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PlayerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LocationLetter)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LocationNumber)
+                @Html.DisplayNameFor(model => model.LocationInfo)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Result)
@@ -37,13 +31,7 @@
                 @Html.DisplayFor(modelItem => item.GameId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PlayerName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LocationLetter)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LocationNumber)
+                @Html.DisplayFor(modelItem => item.LocationInfo)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Result)
@@ -52,8 +40,8 @@
                 @Html.DisplayFor(modelItem => item.CreatedOn)
             </td>
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.LogId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.LogId">Delete</a>
             </td>
         </tr>
 }

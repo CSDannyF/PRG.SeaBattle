@@ -14,10 +14,8 @@ namespace PRG.EVA01.SeaBattle.Controllers
     {
         private readonly SeaBattleDbContext _context;
 
-        private string letters = "ABCDEFG";
+        private string letters = "ABCDEF";
         private string numbers = "123456";
-        private int numberOfBoats = 6;
-        private List<Boat> _boats = new List<Boat>();
 
         public SeaBattleController(SeaBattleDbContext context)
         {
