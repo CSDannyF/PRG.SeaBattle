@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using PRG.EVA01.SeaBattle.Models;
+using PRG.EVA01.SeaBattle.ViewModels.SeaBattle;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics.Metrics;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace PRG.EVA01.SeaBattle.Controllers
 {
@@ -10,17 +14,15 @@ namespace PRG.EVA01.SeaBattle.Controllers
     {
         private readonly SeaBattleDbContext _context;
 
-        private string letters = "ABCDEFG";
+        private string letters = "ABCDEF";
         private string numbers = "123456";
-        private int numberOfBoats = 6;
-        private List<Boat> _boats = new List<Boat>();
 
         public SeaBattleController(SeaBattleDbContext context)
         {
             _context = context;
         }
 
-        /*
+        
         //GET: SeaBattle/ThrowBomb
         [HttpGet("SeaBattle/ThrowBomb/{id}")]
         public async Task<IActionResult> ThrowBomb(int? id)
@@ -40,17 +42,14 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return NotFound();
             }
 
-            ViewBag.SeaBattleInfo = new List<string>
+            var vm = new ThrowBombViewModel
             {
-                "Game id: " + game.Id,
-                "Speler: " + game.PlayerName,
-                "Gestart met spelen: " + game.StartedPlayingOn,
+                GameId = game.Id,
+                PlayerName = game.PlayerName,
             };
-            ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
-
-            return View();
+            return View(vm);
         }
-        */
+
 
         /// <summary>
         /// Gooit een bom ingave in velden en zal de nodige spelinformatie doorgeven aan de view
@@ -59,21 +58,27 @@ namespace PRG.EVA01.SeaBattle.Controllers
         /// <param name="letter">Bereik van A t.e.m. F</param>
         /// <param name="number">Bereik van 1 t.e.m. 6param>
         /// <returns>ThrowBomb view</returns>
-        public async Task<IActionResult> ThrowBomb(string letter, string number, int Id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ThrowBomb(ThrowBombViewModel vm)
         {
-            //ophalen van Game
-            if (Id == null)
+            ModelState.Remove("Result");
+            ModelState.Remove("PlayerName");
+            ModelState.Remove("TotalSunkenBoats");
+
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return View(vm);
             }
 
+            //ophalen van Game
             // Eager loading, voor geneste objecten
             // Als ik enkel de Game ophaal is Boats null en zo ook Location. Dus verplicht ik het Boats en daarna ook Locatie mee op te halen
             // https://learn.microsoft.com/en-us/ef/core/querying/related-data/eager
             var game = await _context.Games
                 .Include(g => g.Boats)
                 .ThenInclude(b => b.Location)
-                .FirstOrDefaultAsync(m => m.Id == Id);
+                .FirstOrDefaultAsync(m => m.Id == vm.GameId);
 
             if (game == null)
             {
@@ -83,23 +88,15 @@ namespace PRG.EVA01.SeaBattle.Controllers
             // GameLog object om later te op te slaan in database indien er een geldige poging is
             GameLog gameLog = new GameLog()
             {
-                GameId = game.Id,
-                PlayerName = game.PlayerName,
-                LocationLetter = letter,
-                LocationNumber = number,
-                CreatedOn = DateTime.Now
-            };
-
-            // Algemene info over het spel
-            ViewBag.SeaBattleInfo = new List<string>
-            {
-                "Game id: " + game.Id,
-                "Speler: " + game.PlayerName,
-                "Gestart met spelen: " + game.StartedPlayingOn,
+                GameId = vm.GameId,
+                PlayerName = vm.PlayerName,
+                LocationLetter = vm.LocationLetter.ToUpper(),
+                LocationNumber = vm.LocationNumber,
+                CreatedOn = vm.CreatedOn
             };
 
             // Check als inkomende parameters binnen het bereik zijn
-            if (letters.Contains(letter.ToUpper()) && numbers.Contains(number))
+            if (letters.Contains(vm.LocationLetter.ToUpper()) && numbers.Contains(vm.LocationNumber))
             {
                 // Loop door de lijst van boten, indien een boot geraakt word, wordt de ThrowBomb view aangeroepen
                 foreach (Boat boat in game.Boats)
@@ -108,44 +105,33 @@ namespace PRG.EVA01.SeaBattle.Controllers
                     if (boat.Status == BoatStatus.Active)
                     {
                         // Check als de bomlocatie overeen komt met de bootlocatie indien true dan hit
-                        if (boat.Location.Letter.Equals(letter.ToUpper()) && boat.Location.Number.Equals(number))
+                        if (boat.Location.Letter.Equals(vm.LocationLetter.ToUpper()) && boat.Location.Number.Equals(vm.LocationNumber))
                         {
                             boat.Status = BoatStatus.Sunk;
-                            ViewBag.BombInfo = new List<string>
-                            {
-                                "Locatie: " + letter + " / " + number,
-                                "Resultaat: HIT!!!",
-                            };
-                            ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
-                            gameLog.Result = "HIT!!!";
+             
+                            vm.Result = "HIT";
+                            vm.TotalSunkenBoats = "Nr of boats sunk: " + GetNumberOfSunkenBoats(game);
+                            gameLog.Result = vm.Result;
                             _context.Add(gameLog);
                             await _context.SaveChangesAsync();
-                            return View();
+                            return View(vm);
                         }
                     }
                 }
-                // Indien geen hit
-                ViewBag.BombInfo = new List<string>
-                {
-                    "Locatie: " + letter + " / " + number,
-                    "Resultaat: MIS!!",
-                };
-                ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
-                gameLog.Result = "MIS!!";
+                // Indien geen hit               
+                vm.Result = "MISS";
+                vm.TotalSunkenBoats = "Nr of boats sunk: " + GetNumberOfSunkenBoats(game);
+                gameLog.Result = vm.Result;
 
                 _context.Add(gameLog);
                 await _context.SaveChangesAsync();
-                return View();
+                return View(vm);
             }
 
             // Indien ongeldige poging maar beide parameters zijn wel meegegeven
-            ViewBag.BombInfo = new List<string>
-            {
-                "Locatie: " + letter + " / " + number,
-                "Resultaat: Ongeldige poging",
-            };
-            ViewBag.SunkenShips = "Aantal gezonken boten: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count;
-            return View();
+            vm.Result = "OUT_OF_BOUNDS";
+            vm.TotalSunkenBoats = "Nr of boats sunk: " + GetNumberOfSunkenBoats(game);
+            return View(vm);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿@model PRG.EVA01.SeaBattle.Models.GameLog
+﻿@model PRG.EVA01.SeaBattle.ViewModels.GameLogs.DeleteViewModel;
 
 @{
     ViewData["Title"] = "Delete";
@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GameId)
+            @Html.DisplayNameFor(model => model.LogId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GameId)
+            @Html.DisplayFor(model => model.LogId)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PlayerName)
@@ -24,16 +24,10 @@
             @Html.DisplayFor(model => model.PlayerName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LocationLetter)
+            @Html.DisplayNameFor(model => model.LocationInfo)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LocationLetter)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LocationNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LocationNumber)
+            @Html.DisplayFor(model => model.LocationInfo)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Result)
@@ -41,16 +35,10 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Result)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedOn)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedOn)
-        </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="LogId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

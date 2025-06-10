@@ -1,52 +1,58 @@
-﻿@model PRG.EVA01.SeaBattle.Models.Game
+﻿@model PRG.EVA01.SeaBattle.ViewModels.SeaBattle.ThrowBombViewModel
 
 @{
     ViewData["Title"] = "ThrowBomb";
 }
+@{
+    var hide = "hidden";
+    var borderColor = "";
 
-<h1>SeaBattle</h1>
-<ul>
-    @foreach (string GameInfo in ViewBag.SeaBattleInfo)
+    if (Model.Result != null)
     {
-        <li>@GameInfo</li> 
-    }
-</ul>
-
-<ul>
-    @if (ViewBag.BombInfo != null)
-    {
-        <h4>Bom info:</h4>
-        @foreach (string BombInfo in ViewBag.BombInfo)
+        switch (Model.Result)
         {
-            <li>@BombInfo</li>
+            case "HIT":
+                borderColor = "green";
+                break;
+            case "MISS":
+                borderColor = "orange";
+                break;
+            default:
+                borderColor = "red";
+                break;
         }
+        hide = "";
     }
-    @if (ViewBag.SunkenShips != null)
-    {
-        <li>@ViewBag.SunkenShips</li>
-    }    
-</ul>
-<!--
+}
+
+<h1>ThrowBomb</h1>
+<h3>@Html.DisplayFor(model => model.PlayerName)</h3>
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4" style="margin:auto 0">
         <form asp-action="ThrowBomb">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="PlayerName" />
+            <input type="hidden" asp-for="GameId" />
             <div class="form-group">
-                <label for="letter" class="control-label">Letter</label>
-                <input id="letter" name="letter" type="text" class="form-control" required/>
+                <label asp-for="LocationLetter" class="control-label"></label>
+                <input asp-for="LocationLetter" class="form-control" required />
+                <span asp-validation-for="LocationLetter" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label for="number" class="control-label">Number</label>
-                <input id="number" name="number" type="number" class="form-control" required/>
+                <label asp-for="LocationNumber" class="control-label"></label>
+                <input asp-for="LocationNumber" class="form-control" required />
+                <span asp-validation-for="LocationNumber" class="text-danger"></span>
             </div>
             <div class="from-group">
-                <input type="submit" value="Play" class="btn btn-primary" />
+                <input type="submit" value="Throw bomb!" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
-<a asp-action="Index">Stop spel</a>
--->
-
+<div @hide style="border: @borderColor solid 3px; padding: 1em; width: 60%;">
+    <p><strong>Throw Result</strong></p>
+    <p>@Html.DisplayFor(model => model.Result)</p>
+    <p>@Html.DisplayFor(model => model.TotalSunkenBoats)</p>
+</div>

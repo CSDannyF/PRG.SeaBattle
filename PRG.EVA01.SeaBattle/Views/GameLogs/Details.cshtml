@@ -1,4 +1,4 @@
-﻿@model PRG.EVA01.SeaBattle.Models.GameLog
+﻿@model PRG.EVA01.SeaBattle.ViewModels.GameLogs.DetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -23,16 +23,10 @@
             @Html.DisplayFor(model => model.PlayerName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LocationLetter)
+            @Html.DisplayNameFor(model => model.LocationInfo)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LocationLetter)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LocationNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LocationNumber)
+            @Html.DisplayFor(model => model.LocationInfo)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Result)
