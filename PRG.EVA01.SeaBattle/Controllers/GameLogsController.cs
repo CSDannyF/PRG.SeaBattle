@@ -84,12 +84,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
         }
 
         // GET: GameLogs/GameId
-        public async Task<IActionResult> GameDetails(int? id)
-        {
-            var seaBattleDbContext = _context.GameLogs
-                .Where(w => w.GameId == id);
-            return View("Index", await seaBattleDbContext.ToListAsync());
-        }
+        //public async Task<IActionResult> GameDetails(int? id)
+        //{
+        //    var seaBattleDbContext = _context.GameLogs
+        //        .Where(w => w.GameId == id);
+        //    return View("Index", await seaBattleDbContext.ToListAsync());
+        //}
 
         // GET: GameLogs/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -105,7 +105,16 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return NotFound();
             }
-            return View(gameLog);
+            var vm = new DeleteViewModel
+            {
+                LogId = gameLog.Id,
+                PlayerName = gameLog.PlayerName,
+                LocationLetter = gameLog.LocationLetter,
+                LocationNumber = gameLog.LocationNumber,
+                Result = gameLog.Result
+            };
+
+            return View(vm);
         }
 
         // POST: GameLogs/Delete/5
