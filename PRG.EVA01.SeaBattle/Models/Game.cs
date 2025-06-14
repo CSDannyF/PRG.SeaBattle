@@ -1,4 +1,6 @@
-﻿namespace PRG.EVA01.SeaBattle.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace PRG.EVA01.SeaBattle.Models
 {
     public class Game
     {
@@ -7,5 +9,7 @@
         public DateTime StartedPlayingOn { get; set; }
         public virtual List<Boat> Boats { get; set; }
         public virtual List<GameLog> GameLogs { get; set; }
+        public string UserId { get; set; }
+        public virtual AppUser User { get; set; }
     }
 }

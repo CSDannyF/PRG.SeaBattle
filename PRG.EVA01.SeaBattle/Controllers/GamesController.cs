@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,13 +16,15 @@ namespace PRG.EVA01.SeaBattle.Controllers
     public class GamesController : Controller
     {
         private readonly SeaBattleDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
         private int numberOfBoats = 6;
         private List<Boat> _boats = new List<Boat>();
 
-        public GamesController(SeaBattleDbContext context)
+        public GamesController(SeaBattleDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         //GET: Games
@@ -61,14 +64,19 @@ namespace PRG.EVA01.SeaBattle.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,PlayerName,StartedPlayingOn")] Game game)
         {
+            var userId = _userManager.GetUserId(User);
+
             game.StartedPlayingOn = DateTime.Now;
             await LoadBoats(numberOfBoats);
             game.Boats = _boats;
+            game.UserId = userId;
 
             // Ik krijg altijd ModelState invalid op de boats omdat deze ModelState wordt gecontrolleerd bij de Post
             // Nu worden de objecten later bijgevoegd maar wordt de ModelState niet veranderd
             ModelState.Remove("Boats");
             ModelState.Remove("GameLogs");
+            ModelState.Remove("User");
+            ModelState.Remove("UserId");
 
             if (ModelState.IsValid)
             {

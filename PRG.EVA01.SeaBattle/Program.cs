@@ -13,7 +13,7 @@ builder.Services.AddControllersWithViews();
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<SeaBattleDbContext>(options => options.UseSqlServer(connectionstring));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SeaBattleDbContext>();
 builder.Services.AddTransient<ISeaBattleService, SeaBattleService>();
