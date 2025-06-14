@@ -16,12 +16,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
     public class GamesController : Controller
     {
         private readonly SeaBattleDbContext _context;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         private int numberOfBoats = 6;
         private List<Boat> _boats = new List<Boat>();
 
-        public GamesController(SeaBattleDbContext context, UserManager<AppUser> userManager)
+        public GamesController(SeaBattleDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -30,6 +30,20 @@ namespace PRG.EVA01.SeaBattle.Controllers
         //GET: Games
         public async Task<IActionResult> Index()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            // Als de ingelogde gebruiker niet de rol Administrator heeft krijgt hij enkel zijn eigen games te zien, anders alles games
+            if (!userRoles.Contains("Administrator"))
+            {
+                return View(_context.Games.Where(a => a.UserId == _userManager.GetUserId(User)));
+            }
+
             return View(await _context.Games.ToListAsync());
         }
 
@@ -41,7 +55,11 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return NotFound();
             }
 
+            // + Afscherming dat spelers via de url aan andere spelers hun games of data kunnen via where
+            // Als de UserId niet gelinkt is met het GameId kan hij deze niet zien
+            // (ook op andere plekken waar dit nodig is voorzien)
             var game = await _context.Games
+                .Where(a => a.UserId == _userManager.GetUserId(User))
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (game == null)
             {
@@ -71,7 +89,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
             game.Boats = _boats;
             game.UserId = userId;
 
-            // Ik krijg altijd ModelState invalid op de boats omdat deze ModelState wordt gecontrolleerd bij de Post
+            // Ik krijg altijd ModelState invalid op deze omdat deze ModelState wordt gecontrolleerd bij de Post
             // Nu worden de objecten later bijgevoegd maar wordt de ModelState niet veranderd
             ModelState.Remove("Boats");
             ModelState.Remove("GameLogs");
@@ -82,13 +100,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 _context.Add(game);
                 await _context.SaveChangesAsync();
-                ViewBag.SeaBattleInfo = new List<string>
-                {
-                    "Game id: " + game.Id,
-                    "Speler: " + game.PlayerName,
-                    "Gestart met spelen: " + game.StartedPlayingOn,
-                    "Aantal gezonken botenbah: " + GetNumberOfSunkenBoats(game) + "/" + game.Boats.Count
-                };
                 return RedirectToAction("ThrowBomb", "SeaBattle", new { id = game.Id });
             }
             return View(game);
@@ -103,7 +114,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
 
             var game = await _context.Games.FindAsync(id);
-            if (game == null)
+            if (game == null || game.UserId != _userManager.GetUserId(User))
             {
                 return NotFound();
             }
@@ -146,6 +157,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
         }
 
         // GET: Games/Delete/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

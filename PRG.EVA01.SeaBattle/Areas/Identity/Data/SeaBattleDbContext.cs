@@ -5,7 +5,8 @@ using PRG.EVA01.SeaBattle.Models;
 
 namespace PRG.EVA01.SeaBattle.Data;
 
-public class SeaBattleDbContext : IdentityDbContext<AppUser>
+//ApplicationUser meegeven ipv IdentityUser
+public class SeaBattleDbContext : IdentityDbContext<ApplicationUser>
 {
     public DbSet<GameLog> GameLogs { get; set; }
     public DbSet<Boat> Boats { get; set; }

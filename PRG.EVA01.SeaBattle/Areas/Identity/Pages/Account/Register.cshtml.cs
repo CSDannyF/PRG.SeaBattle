@@ -25,18 +25,17 @@ namespace PRG.EVA01.SeaBattle.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IUserStore<AppUser> _userStore;
-        private readonly IUserEmailStore<AppUser> _emailStore;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-        private readonly SeaBattleDbContext _context;
 
         public RegisterModel(
-            UserManager<AppUser> userManager,
-            IUserStore<AppUser> userStore,
-            SignInManager<AppUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             SeaBattleDbContext context)
@@ -47,7 +46,6 @@ namespace PRG.EVA01.SeaBattle.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _context = context;
         }
 
         /// <summary>
@@ -120,6 +118,8 @@ namespace PRG.EVA01.SeaBattle.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
+                // Ik geef elk nieuw account een rol player mee
+                //Indien een account rol administrator wil moet deze voorlopig worden toegevoegd in de db zelf
                 await _userManager.AddToRoleAsync(user, "Player");
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -129,16 +129,7 @@ namespace PRG.EVA01.SeaBattle.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-
-                   /* AppUser appUser = new()
-                    {
-                        Id = userId
-                    };
-
-                    _context.Add(appUser);
-                    _context.SaveChanges();*/
-                    
+                    var userId = await _userManager.GetUserIdAsync(user);                    
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -170,11 +161,11 @@ namespace PRG.EVA01.SeaBattle.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private AppUser CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<AppUser>();
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {
@@ -184,13 +175,13 @@ namespace PRG.EVA01.SeaBattle.Areas.Identity.Pages.Account
             }
         }
 
-        private IUserEmailStore<AppUser> GetEmailStore()
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<AppUser>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
     }
 }

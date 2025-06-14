@@ -25,23 +25,26 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.GameId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LocationInfo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Result)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedOn)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.LogId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.LogId">Delete</a>
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GameId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocationInfo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Result)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedOn)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.LogId">Details</a> |
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.LogId">Delete</a>
+                    }
             </td>
         </tr>
 }

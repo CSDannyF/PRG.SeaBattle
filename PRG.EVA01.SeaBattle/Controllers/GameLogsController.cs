@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,43 +17,89 @@ namespace PRG.EVA01.SeaBattle.Controllers
     public class GameLogsController : Controller
     {
         private readonly SeaBattleDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public GameLogsController(SeaBattleDbContext context)
+        public GameLogsController(SeaBattleDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: GameLogs
         public async Task<IActionResult> Index(int? id)
         {
-            if (id != null)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (userRoles.Contains("Administrator") && id != null)
             {
                 var gameLogs = await (from gl in _context.GameLogs
-                    where gl.GameId == id
-                    select new IndexViewModel
-                    {
-                        LogId = gl.Id,
-                        GameId = gl.GameId,
-                        LocationLetter = gl.LocationLetter,
-                        LocationNumber = gl.LocationNumber,
-                        Result = gl.Result,
-                        CreatedOn = gl.CreatedOn
-                    }).ToListAsync();
+                                      where gl.GameId == id
+                                      select new IndexViewModel
+                                      {
+                                          LogId = gl.Id,
+                                          GameId = gl.GameId,
+                                          LocationLetter = gl.LocationLetter,
+                                          LocationNumber = gl.LocationNumber,
+                                          Result = gl.Result,
+                                          CreatedOn = gl.CreatedOn
+                                      }).ToListAsync();
                 return View(gameLogs);
             } 
-            else
+            else if (userRoles.Contains("Administrator") && id == null)
             {
                 var gameLogs = await (from gl in _context.GameLogs
-                    select new IndexViewModel
-                    {
-                        LogId = gl.Id,
-                        GameId = gl.GameId,
-                        LocationLetter = gl.LocationLetter,
-                        LocationNumber = gl.LocationNumber,
-                        Result = gl.Result,
-                        CreatedOn = gl.CreatedOn
-                    }).ToListAsync();
+                                      select new IndexViewModel
+                                      {
+                                          LogId = gl.Id,
+                                          GameId = gl.GameId,
+                                          LocationLetter = gl.LocationLetter,
+                                          LocationNumber = gl.LocationNumber,
+                                          Result = gl.Result,
+                                          CreatedOn = gl.CreatedOn
+                                      }).ToListAsync();
                 return View(gameLogs);
+            }
+            else if (userRoles.Contains("Player") && id != null)
+            {
+                var gameLogs = await (from gl in _context.GameLogs
+                                      join g in _context.Games on gl.GameId equals g.Id
+                                      where gl.GameId == id && g.UserId == _userManager.GetUserId(User)
+                                      select new IndexViewModel
+                                      {
+                                          LogId = gl.Id,
+                                          GameId = gl.GameId,
+                                          LocationLetter = gl.LocationLetter,
+                                          LocationNumber = gl.LocationNumber,
+                                          Result = gl.Result,
+                                          CreatedOn = gl.CreatedOn
+                                      }).ToListAsync();
+                return View(gameLogs);
+            }
+            else if (userRoles.Contains("Player") && id == null)
+            {
+                var gameLogs = await (from gl in _context.GameLogs
+                                      join g in _context.Games on gl.GameId equals g.Id
+                                      where g.UserId == _userManager.GetUserId(User)
+                                      select new IndexViewModel
+                                      {
+                                          LogId = gl.Id,
+                                          GameId = gl.GameId,
+                                          LocationLetter = gl.LocationLetter,
+                                          LocationNumber = gl.LocationNumber,
+                                          Result = gl.Result,
+                                          CreatedOn = gl.CreatedOn
+                                      }).ToListAsync();
+                return View(gameLogs);
+            }
+            else
+            {
+                return NotFound();
             }
             
         }
@@ -66,6 +113,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
 
             var gameLog = await _context.GameLogs
+                .Where(a => a.Game.UserId == _userManager.GetUserId(User))
                 .FirstOrDefaultAsync(m => m.Id == id);
             
             if (gameLog == null)
@@ -86,15 +134,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
             return View(vm);
         }
 
-        // GET: GameLogs/GameId
-        //public async Task<IActionResult> GameDetails(int? id)
-        //{
-        //    var seaBattleDbContext = _context.GameLogs
-        //        .Where(w => w.GameId == id);
-        //    return View("Index", await seaBattleDbContext.ToListAsync());
-        //}
-
-        // GET: GameLogs/Delete/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
