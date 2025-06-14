@@ -8,9 +8,11 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics.Metrics;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRG.EVA01.SeaBattle.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PRG.EVA01.SeaBattle.Controllers
 {
+    [Authorize]
     public class SeaBattleController : Controller
     {
         private readonly ISeaBattleService _seaBattleService;

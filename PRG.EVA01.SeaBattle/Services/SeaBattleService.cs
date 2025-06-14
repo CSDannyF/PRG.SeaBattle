@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PRG.EVA01.SeaBattle.Data;
 using PRG.EVA01.SeaBattle.Models;
 using PRG.EVA01.SeaBattle.Services.Interfaces;
 using PRG.EVA01.SeaBattle.ViewModels.SeaBattle;

@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using PRG.EVA01.SeaBattle.Data;
 using PRG.EVA01.SeaBattle.Models;
 
 namespace PRG.EVA01.SeaBattle.Controllers
 {
+    [Authorize]
     public class GamesController : Controller
     {
         private readonly SeaBattleDbContext _context;
