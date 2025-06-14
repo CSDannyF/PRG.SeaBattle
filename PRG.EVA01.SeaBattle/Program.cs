@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PRG.EVA01.SeaBattle.Models;
+using PRG.EVA01.SeaBattle.Services;
+using PRG.EVA01.SeaBattle.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using PRG.EVA01.SeaBattle.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +13,10 @@ builder.Services.AddControllersWithViews();
 var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<SeaBattleDbContext>(options => options.UseSqlServer(connectionstring));
 
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<SeaBattleDbContext>();
+builder.Services.AddTransient<ISeaBattleService, SeaBattleService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,9 +37,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-//app.MapControllerRoute(
-//  name: "throwBomb",
-//  pattern: "{controller=SeaBattle}/{action=ThrowBomb}/{letter}/{number}/{id}");
+app.MapRazorPages();
 
 app.Run();
