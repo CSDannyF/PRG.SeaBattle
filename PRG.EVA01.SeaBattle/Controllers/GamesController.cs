@@ -59,14 +59,19 @@ namespace PRG.EVA01.SeaBattle.Controllers
             // Als de UserId niet gelinkt is met het GameId kan hij deze niet zien
             // (ook op andere plekken waar dit nodig is voorzien)
             var game = await _context.Games
-                .Where(a => a.UserId == _userManager.GetUserId(User))
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (game == null)
             {
                 return NotFound();
             }
 
-            return View(game);
+            var userId = _userManager.GetUserId(User);
+
+            if (userId == game.UserId || User.IsInRole("Administrator"))
+            {
+                return View(game);
+            }
+            return NotFound();
         }
 
         // GET: Games/Create
@@ -114,11 +119,18 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
 
             var game = await _context.Games.FindAsync(id);
-            if (game == null || game.UserId != _userManager.GetUserId(User))
+            if (game == null)
             {
                 return NotFound();
             }
-            return View(game);
+
+            var userId = _userManager.GetUserId(User);
+
+            if (userId == game.UserId || User.IsInRole("Administrator"))
+            {
+                return View(game);
+            }
+            return NotFound();
         }
 
         // POST: Games/Edit/5

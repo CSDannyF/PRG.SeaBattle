@@ -16,7 +16,9 @@ builder.Services.AddDbContext<SeaBattleDbContext>(options => options.UseSqlServe
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SeaBattleDbContext>();
+
 builder.Services.AddTransient<ISeaBattleService, SeaBattleService>();
+builder.Services.AddTransient<IGameLogService, GameLogService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

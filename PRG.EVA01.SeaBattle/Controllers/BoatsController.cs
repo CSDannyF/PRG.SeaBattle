@@ -98,6 +98,15 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Id", boat.GameId);
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Id", boat.LocationId);
+
+            //https://stackoverflow.com/questions/3489453/how-can-i-convert-an-enumeration-into-a-listselectlistitem
+            ViewBag.BoatStatus = Enum.GetValues(typeof(BoatStatus))
+                .Cast<BoatStatus>()
+                .Select(bs => new SelectListItem
+                {
+                    Value = bs.ToString(),
+                    Text = bs.ToString()
+                }).ToList();
             return View(boat);
         }
 
@@ -113,6 +122,8 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove("Location");
+            ModelState.Remove("Game");
             if (ModelState.IsValid)
             {
                 try
