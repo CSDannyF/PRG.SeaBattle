@@ -62,12 +62,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return View(vm);
             }
 
-            //var game = await _seaBattleService.GetGameAsync(vm.GameId);
+            var game = await _seaBattleService.GetGameAsync(vm.GameId);
 
-            //if (game == null)
-            //{
-            //    return NotFound();
-            //}
+            if (game == null)
+            {
+                return NotFound();
+            }
 
             ThrowBombViewModel viewModel = await _seaBattleService.ThrowBombAsync(vm.GameId, vm.LocationLetter, vm.LocationNumber);
             return View(viewModel);
