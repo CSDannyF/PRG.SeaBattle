@@ -32,19 +32,13 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return NotFound();
             }
 
-            var game = _seaBattleService.GetGameAsync(id);
+            var vm = _seaBattleService.GetGameAsync(id);
 
-            if (game == null)
+            if (vm == null)
             {
                 return NotFound();
-            }
-
-            var vm = new ThrowBombViewModel
-            {
-                GameId = game.Result.Id,
-                PlayerName = game.Result.PlayerName
-            };
-            return View(vm);
+            }            
+            return View(vm.Result);
         }
 
 
@@ -75,10 +69,8 @@ namespace PRG.EVA01.SeaBattle.Controllers
                 return NotFound();
             }
 
-            string result = await _seaBattleService.ThrowBombAsync(vm.GameId, vm.LocationLetter, vm.LocationNumber);
-            vm.Result = result;
-            vm.TotalSunkenBoats = "Total sunken boats: " + _seaBattleService.GetTotalSunkenBoats(game.Boats);
-            return View(vm);
+            ThrowBombViewModel viewModel = await _seaBattleService.ThrowBombAsync(vm.GameId, vm.LocationLetter, vm.LocationNumber);
+            return View(viewModel);
         }
     }
 }

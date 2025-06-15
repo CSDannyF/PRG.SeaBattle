@@ -17,17 +17,24 @@ namespace PRG.EVA01.SeaBattle.Services
             _context = context;
         }
 
-        public async Task<Game> GetGameAsync(int gameId)
-        {
+        public async Task<ThrowBombViewModel> GetGameAsync(int gameId)
+        {            
             // Include Boats voor genest object van Game anders is Boats null
-            return await _context.Games
+            var game = await _context.Games
            .Include(g => g.Boats)
            .FirstOrDefaultAsync(m => m.Id == gameId);
+
+            var vm = new ThrowBombViewModel
+            {
+                GameId = game.Id,
+                PlayerName = game.PlayerName
+            };
+            return vm;
         }
 
-        public async Task<string> ThrowBombAsync(int gameId, string LocationLetter, string LocationNumber)
+        public async Task<ThrowBombViewModel> ThrowBombAsync(int gameId, string LocationLetter, string LocationNumber)
         {
-            //ophalen van Game
+            // Ophalen van Game
             // Eager loading, voor geneste objecten
             // Als ik enkel de Game ophaal is Boats null en zo ook Location. Dus verplicht ik het Boats en daarna ook Locatie mee op te halen
             // https://learn.microsoft.com/en-us/ef/core/querying/related-data/eager
@@ -46,6 +53,8 @@ namespace PRG.EVA01.SeaBattle.Services
                 CreatedOn = DateTime.Now
             };
 
+            ThrowBombViewModel vm = new();
+
             // Check als inkomende parameters binnen het bereik zijn
             if (letters.Contains(LocationLetter.ToUpper()) && numbers.Contains(LocationNumber))
             {
@@ -62,7 +71,10 @@ namespace PRG.EVA01.SeaBattle.Services
                             gameLog.Result = "HIT";
                             _context.Add(gameLog);
                             await _context.SaveChangesAsync();
-                            return "HIT";
+
+                            vm.Result = "HIT";
+                            vm.TotalSunkenBoats = "Total sunken boats: " + GetTotalSunkenBoatsAsync(gameId).Result;
+                            return vm;
                         }
                     }
                 }
@@ -70,19 +82,27 @@ namespace PRG.EVA01.SeaBattle.Services
                 gameLog.Result = "MISS";
                 _context.Add(gameLog);
                 await _context.SaveChangesAsync();
-                return "MISS";
+
+                vm.Result = "MISS";
+                vm.TotalSunkenBoats = "Total sunken boats: " + GetTotalSunkenBoatsAsync(gameId).Result;
+                return vm;
             }
             // Indien ongeldige poging maar beide parameters zijn wel meegegeven
-            return "OUT_OF_BOUNDS";
+            vm.Result = "OUT_OF_BOUNDS";
+            vm.TotalSunkenBoats = "Total sunken boats: " + GetTotalSunkenBoatsAsync(gameId).Result;
+            return vm;
         }
 
         /// <summary>
         /// Geeft terug hoeveel boten gezonken zijn via Linq
         /// </summary>
         /// <returns>Aantal gezonken boten</returns>
-        public int GetTotalSunkenBoats(List<Boat> boats)
+        private async Task<int> GetTotalSunkenBoatsAsync(int gameId)
         {
-            return boats.Count(b => b.Status == BoatStatus.Sunk);
+            var game = await _context.Games
+           .Include(g => g.Boats)
+           .FirstOrDefaultAsync(m => m.Id == gameId);
+            return game.Boats.Count(b => b.Status == BoatStatus.Sunk);
         }
     }
 }
