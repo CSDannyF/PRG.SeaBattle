@@ -28,6 +28,7 @@ namespace PRG.EVA01.SeaBattle.Services
                                       {
                                           LogId = gl.Id,
                                           GameId = gl.GameId,
+                                          PlayerName = gl.PlayerName,
                                           LocationLetter = gl.LocationLetter,
                                           LocationNumber = gl.LocationNumber,
                                           Result = gl.Result,
@@ -42,6 +43,7 @@ namespace PRG.EVA01.SeaBattle.Services
                                       {
                                           LogId = gl.Id,
                                           GameId = gl.GameId,
+                                          PlayerName = gl.PlayerName,
                                           LocationLetter = gl.LocationLetter,
                                           LocationNumber = gl.LocationNumber,
                                           Result = gl.Result,
@@ -58,6 +60,7 @@ namespace PRG.EVA01.SeaBattle.Services
                                       {
                                           LogId = gl.Id,
                                           GameId = gl.GameId,
+                                          PlayerName = gl.PlayerName,
                                           LocationLetter = gl.LocationLetter,
                                           LocationNumber = gl.LocationNumber,
                                           Result = gl.Result,
@@ -74,6 +77,7 @@ namespace PRG.EVA01.SeaBattle.Services
                                       {
                                           LogId = gl.Id,
                                           GameId = gl.GameId,
+                                          PlayerName = gl.PlayerName,
                                           LocationLetter = gl.LocationLetter,
                                           LocationNumber = gl.LocationNumber,
                                           Result = gl.Result,

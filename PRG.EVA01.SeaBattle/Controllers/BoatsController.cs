@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -33,8 +29,7 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 var seaBattleDbContext = _context.Boats.Include(b => b.Game).Include(b => b.Location);
                 return View(await seaBattleDbContext.ToListAsync());
-            }
-                
+            }              
         }
 
         // GET: Boats/Details/5
@@ -165,7 +160,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return NotFound();
             }
-
             return View(boat);
         }
 

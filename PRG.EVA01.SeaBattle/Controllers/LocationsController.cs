@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRG.EVA01.SeaBattle.Data;
 using PRG.EVA01.SeaBattle.Models;
@@ -132,7 +127,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return NotFound();
             }
-
             return View(location);
         }
 
@@ -146,7 +140,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 _context.Locations.Remove(location);
             }
-
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
