@@ -9,10 +9,11 @@ namespace PRG.EVA01.SeaBattle.ViewModels.GameLogs
         public string PlayerName { get; set; }
         public string LocationLetter { get; set; }
         public string LocationNumber { get; set; }
-        [Display(Name = "Location info")]
+        [Display(Name = "Throw location")]
         public string LocationInfo { get { return LocationLetter + "/" + LocationNumber; } }
-        [Display(Name = "Throw Result")]
+        [Display(Name = "Throw result")]
         public string Result { get; set; }
+        [Display(Name = "Created on")]
         public DateTime CreatedOn { get; set; }
     }
 }

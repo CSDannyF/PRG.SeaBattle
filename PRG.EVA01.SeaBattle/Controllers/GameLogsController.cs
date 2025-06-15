@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using PRG.EVA01.SeaBattle.Data;
 using PRG.EVA01.SeaBattle.Models;
 using PRG.EVA01.SeaBattle.Services.Interfaces;
 using PRG.EVA01.SeaBattle.ViewModels.GameLogs;
@@ -38,7 +31,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
 
             var userRoles = await _userManager.GetRolesAsync(user);
             var logs = await _gameLogService.GetGameLogsAsync(user, userRoles, id);
-
             return View(logs);
         }
 
@@ -58,7 +50,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return NotFound();
             }
-
             return View(gameLog);
         }
 
@@ -78,7 +69,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return NotFound();
             }
-
             return View(gameLog);
         }
 

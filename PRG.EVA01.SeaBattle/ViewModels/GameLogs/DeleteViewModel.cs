@@ -5,11 +5,13 @@ namespace PRG.EVA01.SeaBattle.ViewModels.GameLogs
     public class DeleteViewModel
     {
         public int LogId { get; set; }
+        [Display(Name = "Player")]
         public string PlayerName { get; set; }
         public string LocationLetter { get; set; }
         public string LocationNumber { get; set; }
-        [Display(Name = "Location info")]
+        [Display(Name = "Throw location")]
         public string LocationInfo { get { return LocationLetter + "/" + LocationNumber; } }
+        [Display(Name = "Throw result")]
         public string Result { get; set; }
     }
 }

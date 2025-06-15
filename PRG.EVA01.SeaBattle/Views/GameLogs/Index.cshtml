@@ -13,6 +13,9 @@
                 @Html.DisplayNameFor(model => model.GameId)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.PlayerName)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.LocationInfo)
             </th>
             <th>
@@ -29,6 +32,9 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.GameId)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.PlayerName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.LocationInfo)

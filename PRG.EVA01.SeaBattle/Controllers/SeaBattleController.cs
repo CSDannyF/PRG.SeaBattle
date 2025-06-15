@@ -1,12 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using PRG.EVA01.SeaBattle.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using PRG.EVA01.SeaBattle.ViewModels.SeaBattle;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRG.EVA01.SeaBattle.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 
@@ -33,7 +26,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
 
             var vm = _seaBattleService.GetGameAsync(id);
-
             if (vm == null)
             {
                 return NotFound();
@@ -56,14 +48,12 @@ namespace PRG.EVA01.SeaBattle.Controllers
             ModelState.Remove("Result");
             ModelState.Remove("PlayerName");
             ModelState.Remove("TotalSunkenBoats");
-
             if (!ModelState.IsValid)
             {
                 return View(vm);
             }
 
             var game = await _seaBattleService.GetGameAsync(vm.GameId);
-
             if (game == null)
             {
                 return NotFound();

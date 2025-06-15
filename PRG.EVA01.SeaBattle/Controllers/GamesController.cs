@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRG.EVA01.SeaBattle.Data;
 using PRG.EVA01.SeaBattle.Models;
@@ -43,7 +38,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             {
                 return View(_context.Games.Where(a => a.UserId == _userManager.GetUserId(User)));
             }
-
             return View(await _context.Games.ToListAsync());
         }
 
@@ -100,7 +94,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             ModelState.Remove("GameLogs");
             ModelState.Remove("User");
             ModelState.Remove("UserId");
-
             if (ModelState.IsValid)
             {
                 _context.Add(game);
@@ -125,7 +118,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
             }
 
             var userId = _userManager.GetUserId(User);
-
             if (userId == game.UserId || User.IsInRole("Administrator"))
             {
                 return View(game);
@@ -222,7 +214,6 @@ namespace PRG.EVA01.SeaBattle.Controllers
 
             try
             {
-           
                 int i = numberOfBoats;
                 do
                 {
